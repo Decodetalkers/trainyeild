@@ -19,10 +19,12 @@ impl CliElement {
     }
 
     #[allow(unused)]
+    #[must_use]
     pub fn print_emptyblock() -> Self {
         CliElement::EmptyBlock
     }
 
+    #[must_use]
     pub fn print_column<G>(mut generator: G) -> Self
     where
         G: Generator<Yield = CliElement, Return = CliElement> + std::marker::Unpin,
@@ -40,6 +42,8 @@ impl CliElement {
 
         CliElement::Column { inner }
     }
+
+    #[must_use]
     pub fn print_row<G>(mut generator: G) -> Self
     where
         G: Generator<Yield = CliElement, Return = CliElement> + std::marker::Unpin,
@@ -67,6 +71,7 @@ impl CliElement {
     pub fn width(&self) -> usize {
         todo!()
     }
+
     #[allow(unused)]
     pub fn height(&self) -> usize {
         todo!()
