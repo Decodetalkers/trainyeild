@@ -69,11 +69,73 @@ impl CliElement {
 
     #[allow(unused)]
     pub fn width(&self) -> usize {
-        todo!()
+        match self {
+            CliElement::Row { inner } => {
+                let mut len = 0;
+                for inn in inner {
+                    len += inn.width();
+                }
+                len
+            }
+            CliElement::EmptyBlock => 0,
+            CliElement::Column { inner } => {
+                let mut len = 0;
+                for inn in inner {
+                    if inn.width() > len {
+                        len = inn.width();
+                    }
+                }
+                len
+            }
+            CliElement::Singal { inner } => {
+                let mut len = 0;
+                for inn in inner {
+                    if inn.len() > len {
+                        len = inn.len();
+                    }
+                }
+                len
+            }
+        }
     }
 
     #[allow(unused)]
     pub fn height(&self) -> usize {
-        todo!()
+        match self {
+            CliElement::Row { inner } => {
+                let mut len = 0;
+                for inn in inner {
+                    if inn.width() > len {
+                        len = inn.height();
+                    }
+                }
+                len
+            }
+            CliElement::EmptyBlock => 0,
+            CliElement::Column { inner } => {
+                let mut len = 0;
+                for inn in inner {
+                    len += inn.height();
+                }
+                len
+            }
+            CliElement::Singal { .. } => 1,
+        }
     }
+}
+
+#[test]
+fn tst_len() {
+    let test = CliElement::print_column(|| {
+        let unit = CliElement::print_singal(&["sss"]);
+        yield CliElement::print_row(move || {
+            let unita = unit.clone();
+            yield unita.clone();
+            unit
+        });
+        yield CliElement::print_singal(&["sss"]);
+        CliElement::print_singal(&["sss"])
+    });
+    assert_eq!(test.height(), 3);
+    assert_eq!(test.width(), 6);
 }
