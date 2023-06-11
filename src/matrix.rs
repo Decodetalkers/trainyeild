@@ -6,6 +6,7 @@ pub enum CliElement {
     Row { inner: Vec<CliElement> },
     Column { inner: Vec<CliElement> },
     Singal { inner: Vec<String> },
+    EmptyBlock,
 }
 
 impl CliElement {
@@ -16,6 +17,12 @@ impl CliElement {
         }
         CliElement::Singal { inner }
     }
+
+    #[allow(unused)]
+    pub fn print_emptyblock() -> Self {
+        CliElement::EmptyBlock
+    }
+
     pub fn print_column<G>(mut generator: G) -> Self
     where
         G: Generator<Yield = CliElement, Return = CliElement> + std::marker::Unpin,
