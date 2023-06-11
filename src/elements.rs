@@ -27,17 +27,11 @@ impl CliElement {
     #[must_use]
     pub fn print_column<G>(mut generator: G) -> Self
     where
-        G: Generator<Yield = CliElement, Return = CliElement> + std::marker::Unpin,
+        G: Generator<Yield = CliElement, Return = ()> + std::marker::Unpin,
     {
         let mut inner = vec![];
-        loop {
-            match Pin::new(&mut generator).resume(()) {
-                GeneratorState::Yielded(matrix) => inner.push(matrix),
-                GeneratorState::Complete(matrix) => {
-                    inner.push(matrix);
-                    break;
-                }
-            }
+        while let GeneratorState::Yielded(matrix) = Pin::new(&mut generator).resume(()) {
+            inner.push(matrix)
         }
 
         CliElement::Column { inner }
@@ -46,18 +40,21 @@ impl CliElement {
     #[must_use]
     pub fn print_row<G>(mut generator: G) -> Self
     where
-        G: Generator<Yield = CliElement, Return = CliElement> + std::marker::Unpin,
+        G: Generator<Yield = CliElement, Return = ()> + std::marker::Unpin,
     {
         let mut inner = vec![];
-        loop {
-            match Pin::new(&mut generator).resume(()) {
-                GeneratorState::Yielded(matrix) => inner.push(matrix),
-                GeneratorState::Complete(matrix) => {
-                    inner.push(matrix);
-                    break;
-                }
-            }
+        while let GeneratorState::Yielded(matrix) = Pin::new(&mut generator).resume(()) {
+            inner.push(matrix)
         }
+        // TODO: complete need with some option
+        // loop {
+        //     match Pin::new(&mut generator).resume(()) {
+        //         GeneratorState::Yielded(matrix) => inner.push(matrix),
+        //         GeneratorState::Complete(()) => {
+        //             break;
+        //         }
+        //     }
+        // }
 
         CliElement::Row { inner }
     }
@@ -131,10 +128,10 @@ fn tst_len() {
         yield CliElement::print_row(move || {
             let unita = unit.clone();
             yield unita.clone();
-            unit
+            yield unit;
         });
         yield CliElement::print_singal(&["sss"]);
-        CliElement::print_singal(&["sss"])
+        yield CliElement::print_singal(&["sss"])
     });
     assert_eq!(test.height(), 3);
     assert_eq!(test.width(), 6);

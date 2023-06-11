@@ -8,10 +8,10 @@ fn main() {
         yield elements::CliElement::print_row(move || {
             let unita = unit.clone();
             yield unita.clone();
-            unit
+            yield unit
         });
         yield elements::CliElement::print_singal(&["sss"]);
-        elements::CliElement::print_singal(&["sss"])
+        yield elements::CliElement::print_singal(&["sss"])
     });
     println!("{test:?}");
 }
