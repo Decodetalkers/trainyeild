@@ -7,7 +7,7 @@ use layout::Alignment;
 
 use nu_ansi_term::Color::Cyan;
 
-const ARCHLINUX: &str = include_str!("../assert/archlinux.txt");
+const ARCHLINUX: &str = include_str!("../../assert/archlinux.txt");
 
 fn main() {
     CliElement::print_row(|| {
