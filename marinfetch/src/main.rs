@@ -56,9 +56,7 @@ fn os_icon() -> CliElement {
 
 #[inline]
 fn wm_name() -> String {
-    std::env::var("XDG_CURRENT_DESKTOP")
-        .unwrap_or("nofind".to_string())
-        .to_string()
+    std::env::var("XDG_CURRENT_DESKTOP").unwrap_or("nofind".to_string())
 }
 
 #[inline]

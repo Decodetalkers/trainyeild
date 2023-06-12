@@ -67,7 +67,6 @@ impl CliElement {
     ) -> Self {
         let matrix: Vec<String> = matrix
             .lines()
-            .into_iter()
             .map(|line| {
                 if is_bold {
                     color.bold().paint(line).to_string()
