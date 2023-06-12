@@ -49,6 +49,12 @@ impl CliElement {
     }
 
     #[must_use]
+    pub fn print_singal_from_str(matrix: &str, layout: Alignment) -> Self {
+        let matrix: Vec<&str> = matrix.lines().collect();
+        Self::print_singal(&matrix, layout)
+    }
+
+    #[must_use]
     pub fn print_emptyblock() -> Self {
         CliElement::EmptyBlock
     }

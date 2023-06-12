@@ -9,8 +9,7 @@ const ARCHLINUX: &str = include_str!("../assert/archlinux.txt");
 
 fn main() {
     CliElement::print_row(|| {
-        let archlinux: Vec<&str> = ARCHLINUX.lines().collect();
-        yield CliElement::print_singal(&archlinux, Alignment::Left);
+        yield CliElement::print_singal_from_str(ARCHLINUX, Alignment::Left);
         yield CliElement::print_column(|| {
             yield CliElement::print_singal(&["name: marine"], Alignment::Left);
             yield CliElement::print_singal(&["------------"], Alignment::Left);
@@ -18,6 +17,8 @@ fn main() {
             yield CliElement::print_singal(&["Host: Yoga 15s"], Alignment::Left);
             yield CliElement::print_singal(&["Kernel: 6.3.0-arch1-1"], Alignment::Left);
             yield CliElement::print_singal(&["Wm: sway"], Alignment::Left);
+            yield CliElement::print_singal(&["terminal: Wezterm"], Alignment::Left);
+            yield CliElement::print_singal(&["Theme: Breeze"], Alignment::Left);
         });
         Some(RowSettings { spacing: 2 })
     })
