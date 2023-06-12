@@ -11,10 +11,10 @@ const ARCHLINUX: &str = include_str!("../assert/archlinux.txt");
 
 fn main() {
     CliElement::print_row(|| {
-        yield CliElement::print_singal_from_str(ARCHLINUX, Alignment::Left);
+        yield CliElement::print_singal_from_str_with_color(ARCHLINUX, Alignment::Left, Cyan, true);
         yield CliElement::print_column(|| {
             yield CliElement::print_singal(
-                &[&Cyan.paint("name: marine").to_string()],
+                &[&Cyan.bold().paint("name: marine").to_string()],
                 Alignment::Left,
             );
             yield CliElement::print_singal(&["------------"], Alignment::Left);

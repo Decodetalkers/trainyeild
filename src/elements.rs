@@ -6,6 +6,9 @@ use strfmt::strfmt;
 
 use crate::layout::{Alignment, RowSettings};
 
+#[cfg(feature = "color")]
+use nu_ansi_term::Color;
+
 #[derive(Debug, Clone)]
 pub enum CliElement {
     Row {
@@ -51,6 +54,29 @@ impl CliElement {
     #[must_use]
     pub fn print_singal_from_str(matrix: &str, layout: Alignment) -> Self {
         let matrix: Vec<&str> = matrix.lines().collect();
+        Self::print_singal(&matrix, layout)
+    }
+
+    #[cfg(feature = "color")]
+    #[must_use]
+    pub fn print_singal_from_str_with_color(
+        matrix: &str,
+        layout: Alignment,
+        color: Color,
+        is_bold: bool,
+    ) -> Self {
+        let matrix: Vec<String> = matrix
+            .lines()
+            .into_iter()
+            .map(|line| {
+                if is_bold {
+                    color.bold().paint(line).to_string()
+                } else {
+                    color.paint(line).to_string()
+                }
+            })
+            .collect();
+        let matrix: Vec<&str> = matrix.iter().map(|s| s.as_str()).collect();
         Self::print_singal(&matrix, layout)
     }
 
