@@ -1,5 +1,8 @@
+use std::collections::HashMap;
 use std::ops::{Generator, GeneratorState};
 use std::pin::Pin;
+
+use strfmt::strfmt;
 
 #[derive(Debug, Clone)]
 pub enum CliElement {
@@ -7,6 +10,14 @@ pub enum CliElement {
     Column { inner: Vec<CliElement> },
     Singal { inner: Vec<String> },
     EmptyBlock,
+}
+
+fn init_matrix(heigth: usize) -> Vec<String> {
+    let mut output = vec![];
+    for _ in 0..heigth {
+        output.push(String::new());
+    }
+    output
 }
 
 impl CliElement {
@@ -60,8 +71,69 @@ impl CliElement {
     }
 
     #[allow(unused)]
+    fn get_draw_map(&self, draw_width: usize) -> Vec<String> {
+        match self {
+            CliElement::EmptyBlock => {
+                let formatalign = format!("{{content: <{}}}", draw_width);
+                let format_res = strfmt(
+                    &formatalign,
+                    &HashMap::from([("content".to_string(), String::new())]),
+                )
+                .unwrap();
+                vec![format_res]
+            }
+            CliElement::Singal { inner } => {
+                let formatalign = format!("{{content: <{}}}", draw_width);
+                let mut output = vec![];
+                for inn in inner {
+                    output.push({
+                        strfmt(
+                            &formatalign,
+                            &HashMap::from([("content".to_string(), inn.clone())]),
+                        )
+                        .unwrap()
+                    });
+                }
+                output
+            }
+            CliElement::Column { inner } => {
+                let mut output = vec![];
+                for inn in inner {
+                    output.append(&mut inn.get_draw_map(draw_width));
+                }
+                output
+            }
+            CliElement::Row { inner } => {
+                let height = self.height();
+                let mut adjust = init_matrix(height);
+                for inn in inner {
+                    let mut inn2 = inn.get_draw_map(inn.width());
+                    let formatalign = format!("{{content: <{}}}", inn.width());
+                    for _ in inn.height()..height {
+                        inn2.push(
+                            strfmt(
+                                &formatalign,
+                                &HashMap::from([("content".to_string(), String::new())]),
+                            )
+                            .unwrap(),
+                        );
+                    }
+                    //adjust.push(inn2);
+                    for index in 0..height {
+                        adjust[index].push_str(&inn2[index]);
+                    }
+                }
+                adjust
+            }
+        }
+    }
+
+    #[allow(unused)]
     pub fn draw(&self) {
-        todo!()
+        let map = self.get_draw_map(self.width());
+        for ma in map {
+            println!("{}", ma);
+        }
     }
 
     #[allow(unused)]
@@ -108,7 +180,7 @@ impl CliElement {
                 }
                 len
             }
-            CliElement::EmptyBlock => 0,
+            CliElement::EmptyBlock => 1,
             CliElement::Column { inner } => {
                 let mut len = 0;
                 for inn in inner {
@@ -116,7 +188,7 @@ impl CliElement {
                 }
                 len
             }
-            CliElement::Singal { .. } => 1,
+            CliElement::Singal { inner } => inner.len(),
         }
     }
 }
