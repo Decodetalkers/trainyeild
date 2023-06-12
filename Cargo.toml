@@ -7,3 +7,6 @@ edition = "2021"
 
 [dependencies]
 strfmt = "0.2.4"
+
+[dev-dependencies]
+nu-ansi-term = "0.48.0"

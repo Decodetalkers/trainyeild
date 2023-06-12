@@ -5,13 +5,18 @@ use cliprint::layout::RowSettings;
 use elements::CliElement;
 use layout::Alignment;
 
+use nu_ansi_term::Color::Cyan;
+
 const ARCHLINUX: &str = include_str!("../assert/archlinux.txt");
 
 fn main() {
     CliElement::print_row(|| {
         yield CliElement::print_singal_from_str(ARCHLINUX, Alignment::Left);
         yield CliElement::print_column(|| {
-            yield CliElement::print_singal(&["name: marine"], Alignment::Left);
+            yield CliElement::print_singal(
+                &[&Cyan.paint("name: marine").to_string()],
+                Alignment::Left,
+            );
             yield CliElement::print_singal(&["------------"], Alignment::Left);
             yield CliElement::print_singal(&["OS: ArchLinux"], Alignment::Left);
             yield CliElement::print_singal(&["Host: Yoga 15s"], Alignment::Left);
@@ -19,8 +24,19 @@ fn main() {
             yield CliElement::print_singal(&["Wm: sway"], Alignment::Left);
             yield CliElement::print_singal(&["terminal: Wezterm"], Alignment::Left);
             yield CliElement::print_singal(&["Theme: Breeze"], Alignment::Left);
+            yield CliElement::print_singal(&["Theme: Breeze"], Alignment::Left);
+            yield CliElement::print_singal(&["Theme: Breeze"], Alignment::Left);
+            yield CliElement::print_singal(&["Theme: Breeze"], Alignment::Left);
+            yield CliElement::print_singal(&["Theme: Breeze"], Alignment::Left);
+            yield CliElement::print_singal(&["Theme: Breeze"], Alignment::Left);
+            yield CliElement::print_singal(&["Theme: Breeze"], Alignment::Left);
+            yield CliElement::print_singal(&["Theme: Breeze"], Alignment::Left);
+            yield CliElement::print_singal(&["Theme: Breeze"], Alignment::Left);
+            yield CliElement::print_singal(&["Theme: Breeze"], Alignment::Left);
+            yield CliElement::print_singal(&["Theme: Breeze"], Alignment::Left);
+            yield CliElement::print_singal(&["Theme: Breeze"], Alignment::Left);
         });
-        Some(RowSettings { spacing: 2 })
+        Some(RowSettings { spacing: 1 })
     })
     .draw();
 }
