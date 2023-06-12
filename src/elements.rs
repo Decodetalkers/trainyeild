@@ -4,11 +4,21 @@ use std::pin::Pin;
 
 use strfmt::strfmt;
 
+use crate::layout::{Alignment, RowSettings};
+
 #[derive(Debug, Clone)]
 pub enum CliElement {
-    Row { inner: Vec<CliElement> },
-    Column { inner: Vec<CliElement> },
-    Singal { inner: Vec<String> },
+    Row {
+        inner: Vec<CliElement>,
+        settings: Option<RowSettings>,
+    },
+    Column {
+        inner: Vec<CliElement>,
+    },
+    Singal {
+        inner: Vec<String>,
+        layout: Alignment,
+    },
     EmptyBlock,
 }
 
@@ -22,12 +32,12 @@ fn init_matrix(heigth: usize) -> Vec<String> {
 
 impl CliElement {
     #[must_use]
-    pub fn print_singal(matrix: &[&str]) -> Self {
+    pub fn print_singal(matrix: &[&str], layout: Alignment) -> Self {
         let mut inner = vec![];
         for mat in matrix {
             inner.push(mat.to_string());
         }
-        CliElement::Singal { inner }
+        CliElement::Singal { inner, layout }
     }
 
     #[must_use]
@@ -51,23 +61,21 @@ impl CliElement {
     #[must_use]
     pub fn print_row<G>(mut generator: G) -> Self
     where
-        G: Generator<Yield = CliElement, Return = ()> + std::marker::Unpin,
+        G: Generator<Yield = CliElement, Return = Option<RowSettings>> + std::marker::Unpin,
     {
         let mut inner = vec![];
-        while let GeneratorState::Yielded(matrix) = Pin::new(&mut generator).resume(()) {
-            inner.push(matrix)
+        let settings;
+        loop {
+            match Pin::new(&mut generator).resume(()) {
+                GeneratorState::Yielded(matrix) => inner.push(matrix),
+                GeneratorState::Complete(setting) => {
+                    settings = setting;
+                    break;
+                }
+            }
         }
-        // TODO: complete need with some option
-        // loop {
-        //     match Pin::new(&mut generator).resume(()) {
-        //         GeneratorState::Yielded(matrix) => inner.push(matrix),
-        //         GeneratorState::Complete(()) => {
-        //             break;
-        //         }
-        //     }
-        // }
 
-        CliElement::Row { inner }
+        CliElement::Row { inner, settings }
     }
 
     fn get_draw_map(&self, draw_width: usize) -> Vec<String> {
@@ -81,8 +89,11 @@ impl CliElement {
                 .unwrap();
                 vec![format_res]
             }
-            CliElement::Singal { inner } => {
-                let formatalign = format!("{{content: <{}}}", draw_width);
+            CliElement::Singal { inner, layout } => {
+                let formatalign = match layout {
+                    Alignment::Left => format!("{{content: <{}}}", draw_width),
+                    Alignment::Right => format!("{{content: >{}}}", draw_width),
+                };
                 let mut output = vec![];
                 for inn in inner {
                     output.push({
@@ -102,7 +113,7 @@ impl CliElement {
                 }
                 output
             }
-            CliElement::Row { inner } => {
+            CliElement::Row { inner, .. } => {
                 let height = self.height();
                 let mut adjust = init_matrix(height);
                 for inn in inner {
@@ -136,11 +147,13 @@ impl CliElement {
 
     pub fn width(&self) -> usize {
         match self {
-            CliElement::Row { inner } => {
+            CliElement::Row { inner, settings } => {
                 let mut len = 0;
                 for inn in inner {
                     len += inn.width();
                 }
+                let spacwidth = settings.and_then(|a| Some(a.spacing)).unwrap_or(0);
+                len += (inner.len() + 1) * spacwidth;
                 len
             }
             CliElement::EmptyBlock => 0,
@@ -153,7 +166,7 @@ impl CliElement {
                 }
                 len
             }
-            CliElement::Singal { inner } => {
+            CliElement::Singal { inner, .. } => {
                 let mut len = 0;
                 for inn in inner {
                     if inn.len() > len {
@@ -167,7 +180,7 @@ impl CliElement {
 
     pub fn height(&self) -> usize {
         match self {
-            CliElement::Row { inner } => {
+            CliElement::Row { inner, .. } => {
                 let mut len = 0;
                 for inn in inner {
                     if inn.width() > len {
@@ -184,7 +197,7 @@ impl CliElement {
                 }
                 len
             }
-            CliElement::Singal { inner } => inner.len(),
+            CliElement::Singal { inner, .. } => inner.len(),
         }
     }
 }
@@ -192,14 +205,15 @@ impl CliElement {
 #[test]
 fn tst_len() {
     let test = CliElement::print_column(|| {
-        let unit = CliElement::print_singal(&["sss"]);
+        let unit = CliElement::print_singal(&["sss"], Alignment::Left);
         yield CliElement::print_row(move || {
             let unita = unit.clone();
             yield unita.clone();
             yield unit;
+            None
         });
-        yield CliElement::print_singal(&["sss"]);
-        yield CliElement::print_singal(&["sss"])
+        yield CliElement::print_singal(&["sss"], Alignment::Left);
+        yield CliElement::print_singal(&["sss"], Alignment::Left)
     });
     assert_eq!(test.height(), 3);
     assert_eq!(test.width(), 6);
