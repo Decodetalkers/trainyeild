@@ -9,6 +9,12 @@ use crate::layout::{Alignment, RowSettings};
 #[cfg(feature = "color")]
 use nu_ansi_term::Color;
 
+/// It is the element of cli, a unit
+/// privide Row, Column, Singal Singal
+/// ```
+/// let a = CliElement::EmptyBlock;
+/// ```
+/// Other one should build with impl
 #[derive(Debug, Clone)]
 pub enum CliElement {
     Row {
@@ -42,6 +48,10 @@ fn init_string_with_width(width: usize) -> String {
 }
 
 impl CliElement {
+    /// use a matrix to init a CliElement::Singal
+    /// ```
+    /// let a = CliElement::print_singal(&["sss","bbb"], Alignment::Left);
+    /// ```
     #[must_use]
     pub fn print_singal(matrix: &[&str], layout: Alignment) -> Self {
         let mut inner = vec![];
@@ -51,12 +61,18 @@ impl CliElement {
         CliElement::Singal { inner, layout }
     }
 
+    /// same as print_singal, but with string
+    /// ```
+    /// let archlinux = include_str("../../assert/archlinux.txt");
+    /// let a = CliElement::print_singal_from_str(archlinux, Alignment::Left);
+    /// ```
     #[must_use]
     pub fn print_singal_from_str(matrix: &str, layout: Alignment) -> Self {
         let matrix: Vec<&str> = matrix.lines().collect();
         Self::print_singal(&matrix, layout)
     }
 
+    /// same as print_singal_from_str, but privde color, use nu_ansi_term
     #[cfg(feature = "color")]
     #[must_use]
     pub fn print_singal_from_str_with_color(
