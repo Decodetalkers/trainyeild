@@ -21,6 +21,7 @@ fn init_matrix(heigth: usize) -> Vec<String> {
 }
 
 impl CliElement {
+    #[must_use]
     pub fn print_singal(matrix: &[&str]) -> Self {
         let mut inner = vec![];
         for mat in matrix {
@@ -29,7 +30,6 @@ impl CliElement {
         CliElement::Singal { inner }
     }
 
-    #[allow(unused)]
     #[must_use]
     pub fn print_emptyblock() -> Self {
         CliElement::EmptyBlock
@@ -70,7 +70,6 @@ impl CliElement {
         CliElement::Row { inner }
     }
 
-    #[allow(unused)]
     fn get_draw_map(&self, draw_width: usize) -> Vec<String> {
         match self {
             CliElement::EmptyBlock => {
@@ -128,7 +127,6 @@ impl CliElement {
         }
     }
 
-    #[allow(unused)]
     pub fn draw(&self) {
         let map = self.get_draw_map(self.width());
         for ma in map {
@@ -136,7 +134,6 @@ impl CliElement {
         }
     }
 
-    #[allow(unused)]
     pub fn width(&self) -> usize {
         match self {
             CliElement::Row { inner } => {
@@ -168,7 +165,6 @@ impl CliElement {
         }
     }
 
-    #[allow(unused)]
     pub fn height(&self) -> usize {
         match self {
             CliElement::Row { inner } => {
