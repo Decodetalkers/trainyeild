@@ -196,7 +196,7 @@ impl CliElement {
             CliElement::Row { inner, .. } => {
                 let mut len = 0;
                 for inn in inner {
-                    if inn.width() > len {
+                    if inn.height() > len {
                         len = inn.height();
                     }
                 }
