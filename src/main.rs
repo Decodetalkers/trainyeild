@@ -1,12 +1,8 @@
 #![feature(generators, generator_trait)]
-
-mod elements;
-
-mod layout;
-
+use cliprint::elements;
+use cliprint::layout;
 use elements::CliElement;
-use layout::RowSettings;
-
+use layout::{Alignment, RowSettings};
 fn main() {
     CliElement::print_column(|| {
         let unit = CliElement::print_singal(&["sss"], layout::Alignment::Left);
@@ -17,10 +13,7 @@ fn main() {
 
             yield CliElement::print_column(|| {
                 yield CliElement::print_emptyblock();
-                yield CliElement::print_singal(
-                    &["gammer", "gammer", "beta"],
-                    layout::Alignment::Right,
-                );
+                yield CliElement::print_singal(&["gammer", "gammer", "beta"], Alignment::Right);
             });
             yield unit;
             Some(RowSettings { spacing: 2 })
