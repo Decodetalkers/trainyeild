@@ -5,6 +5,7 @@ mod elements;
 mod layout;
 
 use elements::CliElement;
+use layout::RowSettings;
 
 fn main() {
     CliElement::print_column(|| {
@@ -12,7 +13,6 @@ fn main() {
         yield CliElement::print_row(move || {
             let unita = unit.clone();
             yield CliElement::print_singal(&["beta"], layout::Alignment::Left);
-            yield CliElement::print_singal(&["  "], layout::Alignment::Left);
             yield unita.clone();
 
             yield CliElement::print_column(|| {
@@ -23,7 +23,7 @@ fn main() {
                 );
             });
             yield unit;
-            None
+            Some(RowSettings { spacing: 2 })
         });
         yield CliElement::print_singal(&["beta"], layout::Alignment::Right);
         yield CliElement::print_singal(&["alpha"], layout::Alignment::Right)

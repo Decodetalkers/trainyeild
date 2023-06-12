@@ -30,6 +30,14 @@ fn init_matrix(heigth: usize) -> Vec<String> {
     output
 }
 
+fn init_string_with_width(width: usize) -> String {
+    let mut output = String::new();
+    for _ in 0..width {
+        output.push(' ');
+    }
+    output
+}
+
 impl CliElement {
     #[must_use]
     pub fn print_singal(matrix: &[&str], layout: Alignment) -> Self {
@@ -113,9 +121,14 @@ impl CliElement {
                 }
                 output
             }
-            CliElement::Row { inner, .. } => {
+            CliElement::Row { inner, settings } => {
+                let spacewidth = settings.and_then(|a| Some(a.spacing)).unwrap_or(0);
+                let spacestring = init_string_with_width(spacewidth);
                 let height = self.height();
                 let mut adjust = init_matrix(height);
+                for item in adjust.iter_mut().take(height) {
+                    item.push_str(&spacestring);
+                }
                 for inn in inner {
                     let mut inn2 = inn.get_draw_map(inn.width());
                     let formatalign = format!("{{content: <{}}}", inn.width());
@@ -128,9 +141,9 @@ impl CliElement {
                             .unwrap(),
                         );
                     }
-                    //adjust.push(inn2);
                     for index in 0..height {
                         adjust[index].push_str(&inn2[index]);
+                        adjust[index].push_str(&spacestring);
                     }
                 }
                 adjust
