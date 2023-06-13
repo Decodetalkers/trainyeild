@@ -304,6 +304,24 @@ fn gpu_element(gpu: &str) -> CliElement {
     CliElement::print_singal(&[&gpu_element], Alignment::Left)
 }
 
+fn color_block(start: usize, end: usize, step: usize) -> String {
+    let mut color = String::new();
+    use nu_ansi_term::Color;
+    for index in (start..end).step_by(step) {
+        let style = Color::White.on(Color::Rgb(
+            index as u8,
+            (index * 2 % 255) as u8,
+            (index * 3 % 255) as u8,
+        ));
+        color.push_str(&style.paint("   ").to_string());
+    }
+    color
+}
+
+fn color_emement() -> CliElement {
+    CliElement::print_singal(&[&color_block(0, 255, 9)], Alignment::Left)
+}
+
 fn os_description() -> CliElement {
     CliElement::print_column(|| {
         yield hostname_element();
@@ -326,10 +344,13 @@ fn os_description() -> CliElement {
 }
 
 fn main() {
-    CliElement::print_row(|| {
-        yield os_icon();
-        yield os_description();
-        Some(RowSettings { spacing: 1 })
+    CliElement::print_column(|| {
+        yield CliElement::print_row(|| {
+            yield os_icon();
+            yield os_description();
+            Some(RowSettings { spacing: 1 })
+        });
+        yield color_emement();
     })
     .draw();
 }
