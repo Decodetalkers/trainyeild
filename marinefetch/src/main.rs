@@ -1,6 +1,9 @@
 #![feature(generators, generator_trait)]
+mod waylandinfos;
 use std::ffi::OsString;
 
+use sctk::output::OutputInfo;
+use waylandinfos::get_output_infos;
 use zbus::{blocking::Connection, dbus_proxy, Result};
 
 use cliprint::elements;
@@ -322,6 +325,19 @@ fn color_emement() -> CliElement {
     CliElement::print_singal(&[&color_block(0, 255, 9)], Alignment::Left)
 }
 
+fn wayland_screen(info: OutputInfo) -> CliElement {
+    let screen_promote = Cyan.bold().paint("Screen");
+    let screen_element = format!(
+        "{}: {} {}",
+        screen_promote.to_string(),
+        info.name.unwrap_or("".to_string()),
+        info.logical_size
+            .map(|(x, y)| format!("{}x{}", x, y))
+            .unwrap_or("Default".to_string())
+    );
+    CliElement::print_singal(&[&screen_element], Alignment::Left)
+}
+
 fn os_description() -> CliElement {
     CliElement::print_column(|| {
         yield hostname_element();
@@ -334,6 +350,11 @@ fn os_description() -> CliElement {
         yield wm_name_element();
         yield terminal_element();
         yield xdg_session_type_element();
+        if xdg_session_type() == "wayland" {
+            for info in get_output_infos() {
+                yield wayland_screen(info);
+            }
+        }
         yield cpu_element();
         let gpus = get_gpu_names();
         for gpu in gpus {
