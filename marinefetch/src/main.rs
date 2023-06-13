@@ -15,7 +15,7 @@ const ARCHLINUX: &str = include_str!("../../assert/archlinux.txt");
 
 const UP_TIME: &str = "/proc/uptime";
 
-use std::sync::OnceLock;
+const MEMINFO: &str = "/proc/meminfo";
 
 static SESSION: OnceLock<Connection> = OnceLock::new();
 
@@ -25,6 +25,13 @@ const ARCHTECHER: &str = "x86_64";
 const ARCHTECHER: &str = "x86";
 #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
 const ARCHTECHER: &str = "Unknown";
+
+const PRODUCT_NAME: &str = "/sys/devices/virtual/dmi/id/product_name";
+const PRODUCT_VERSION: &str = "/sys/devices/virtual/dmi/id/product_version";
+
+const CPU_INFO: &str = "/proc/cpuinfo";
+
+use std::sync::OnceLock;
 
 fn get_connection() -> zbus::Result<Connection> {
     if let Some(cnx) = SESSION.get() {
@@ -154,15 +161,167 @@ fn os_name_element() -> CliElement {
     CliElement::print_singal(&[&os_name_element], Alignment::Left)
 }
 
+fn get_memory() -> String {
+    std::fs::read_to_string(MEMINFO)
+        .map(|content| {
+            let lines: Vec<&str> = content.lines().collect();
+            let mut total_memory = String::new();
+            let mut free_memory = String::new();
+            for lin in lines {
+                if lin.starts_with("MemTotal:") {
+                    total_memory = lin
+                        .split(' ')
+                        .filter(|lin| !lin.is_empty())
+                        .collect::<Vec<&str>>()[1]
+                        .to_string();
+                }
+                if lin.starts_with("MemFree:") {
+                    free_memory = lin
+                        .split(' ')
+                        .filter(|line| !line.is_empty())
+                        .collect::<Vec<&str>>()[1]
+                        .to_string();
+                }
+            }
+            let total_memory: i32 = total_memory.parse::<i32>().unwrap() / 1024;
+            let free_memory: i32 = free_memory.parse::<i32>().unwrap() / 1024;
+            format!("{} MiB / {} MiB", free_memory, total_memory)
+        })
+        .unwrap_or("Unknown".to_string())
+}
+
+fn memory_element() -> CliElement {
+    let memory_promote = Cyan.bold().paint("Memory");
+    let memory_element = format!("{}: {}", memory_promote, get_memory());
+    CliElement::print_singal(&[&memory_element], Alignment::Left)
+}
+
+fn get_shell() -> String {
+    std::env::var("SHELL")
+        .map(|shell| shell.split('/').last().unwrap_or("Unknown").to_string())
+        .unwrap_or("Unknown".to_string())
+}
+
+fn shell_element() -> CliElement {
+    let shell_promote = Cyan.bold().paint("Shell");
+    let shell_element = format!("{}: {}", shell_promote, get_shell());
+    CliElement::print_singal(&[&shell_element], Alignment::Left)
+}
+
+fn get_terminal() -> String {
+    std::env::var("TERM_PROGRAM").unwrap_or_else(|_| {
+        std::process::Command::new("tty")
+            .output()
+            .map(|output| String::from_utf8_lossy(output.stdout.as_ref()).to_string())
+            .unwrap_or("Unkown".to_string())
+            .trim()
+            .to_string()
+    })
+}
+
+fn terminal_element() -> CliElement {
+    let terminal_promote = Cyan.bold().paint("Terminal");
+    let terminal_element = format!("{}: {}", terminal_promote, get_terminal());
+    CliElement::print_singal(&[&terminal_element], Alignment::Left)
+}
+
+fn get_machine_name() -> String {
+    let Ok(name) = std::fs::read_to_string(PRODUCT_NAME) else {
+        return "Unknown".to_string();
+    };
+    let name = name.trim();
+    let Ok(version) = std::fs::read_to_string(PRODUCT_VERSION) else {
+        return "Unknown".to_string();
+    };
+    let version = version.trim();
+    format!("{} {}", name, version)
+}
+
+fn machine_element() -> CliElement {
+    let machine_promote = Cyan.bold().paint("Host");
+    let machine_element = format!("{}: {}", machine_promote, get_machine_name());
+    CliElement::print_singal(&[&machine_element], Alignment::Left)
+}
+
+fn get_cpu_name() -> String {
+    let Ok(cpu) = std::fs::read_to_string(CPU_INFO) else {
+        return "Unknown".to_string();
+    };
+    let cpu = cpu.trim();
+    let cpuinfo: Vec<&str> = cpu.split("\n\n").collect();
+    let number = cpuinfo.len();
+    let onecpu = cpuinfo[0];
+    let mut cpuname = String::new();
+    for info in onecpu.lines() {
+        if info.starts_with("model name") {
+            cpuname = info.split(':').last().unwrap_or("").to_string();
+            break;
+        }
+    }
+    let cpunameinfos: Vec<&str> = cpuname.split('@').collect();
+    format!("{} ({})", cpunameinfos[0].trim(), number)
+}
+
+fn cpu_element() -> CliElement {
+    let cpu_promote = Cyan.bold().paint("CPU");
+    let cpu_element = format!("{}: {}", cpu_promote, get_cpu_name());
+    CliElement::print_singal(&[&cpu_element], Alignment::Left)
+}
+
+fn get_gpu_names() -> Vec<String> {
+    std::process::Command::new("lspci")
+        .arg("-mm")
+        .output()
+        .map(|output| {
+            let output = String::from_utf8_lossy(output.stdout.as_ref())
+                .trim()
+                .to_string();
+            let lines: Vec<&str> = output.lines().collect();
+            let mut outputs = vec![];
+            for line in lines {
+                let information: Vec<&str> = line
+                    .split('"')
+                    .filter(|line| !line.trim().is_empty())
+                    .collect();
+                let infoname = information[1];
+                if infoname.starts_with("DISPLAY")
+                    || infoname.starts_with("3D")
+                    || infoname.starts_with("VGA")
+                {
+                    let corporations = information[2].split(' ').collect::<Vec<&str>>();
+                    let corporation = corporations[0];
+                    outputs.push(format!("{} {}", corporation, information[3]));
+                }
+            }
+            outputs
+        })
+        .unwrap_or(vec![])
+}
+
+fn gpu_element(gpu: &str) -> CliElement {
+    let gpu_promote = Cyan.bold().paint("GPU");
+    let gpu_element = format!("{}: {}", gpu_promote, gpu);
+    CliElement::print_singal(&[&gpu_element], Alignment::Left)
+}
+
 fn os_description() -> CliElement {
-    CliElement::print_column(move || {
+    CliElement::print_column(|| {
         yield hostname_element();
         yield CliElement::print_singal(&["----------"], Alignment::Left);
         yield os_name_element();
+        yield machine_element();
         yield kernel_element();
         yield uptime_element();
+        yield shell_element();
         yield wm_name_element();
+        yield terminal_element();
         yield xdg_session_type_element();
+        yield cpu_element();
+        let gpus = get_gpu_names();
+        for gpu in gpus {
+            yield gpu_element(&gpu);
+        }
+        yield memory_element();
     })
 }
 
@@ -173,4 +332,10 @@ fn main() {
         Some(RowSettings { spacing: 1 })
     })
     .draw();
+}
+
+#[test]
+fn tst_split_cpu() {
+    let cpus = include_str!("../../assert/example.txt");
+    assert_eq!(cpus.split("\n\n").count(), 8);
 }

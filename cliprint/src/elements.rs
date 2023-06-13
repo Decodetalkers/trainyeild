@@ -12,6 +12,7 @@ use nu_ansi_term::Color;
 /// It is the element of cli, a unit
 /// privide Row, Column, Singal Singal
 /// ```
+/// use cliprint::elements::CliElement;
 /// let a = CliElement::EmptyBlock;
 /// ```
 /// Other one should build with impl
@@ -50,6 +51,8 @@ fn init_string_with_width(width: usize) -> String {
 impl CliElement {
     /// use a matrix to init a CliElement::Singal
     /// ```
+    /// use cliprint::elements::CliElement;
+    /// use cliprint::layout::Alignment;
     /// let a = CliElement::print_singal(&["sss","bbb"], Alignment::Left);
     /// ```
     #[must_use]
@@ -63,7 +66,9 @@ impl CliElement {
 
     /// same as print_singal, but with string
     /// ```
-    /// let archlinux = include_str("../../assert/archlinux.txt");
+    /// use cliprint::elements::CliElement;
+    /// use cliprint::layout::Alignment;
+    /// let archlinux = include_str!("../../assert/archlinux.txt");
     /// let a = CliElement::print_singal_from_str(archlinux, Alignment::Left);
     /// ```
     #[must_use]
