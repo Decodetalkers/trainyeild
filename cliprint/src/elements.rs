@@ -104,23 +104,21 @@ impl CliElement {
     }
 
     #[must_use]
-    pub fn print_column(iters: impl Iterator<Item = CliElement>) -> Self {
-        let mut inner = vec![];
-        for element in iters {
-            inner.push(element)
+    pub fn print_column(elements: impl Iterator<Item = CliElement>) -> Self {
+        CliElement::Column {
+            inner: elements.collect(),
         }
-
-        CliElement::Column { inner }
     }
 
     #[must_use]
     pub fn print_row(
-        iters: impl Iterator<Item = CliElement>,
+        elements: impl Iterator<Item = CliElement>,
         settings: Option<RowSettings>,
     ) -> Self {
-        let inner = iters.collect();
-
-        CliElement::Row { inner, settings }
+        CliElement::Row {
+            inner: elements.collect(),
+            settings,
+        }
     }
 
     fn get_draw_map(&self, draw_width: usize) -> Vec<String> {
