@@ -10,7 +10,7 @@ keywords = ["cli", "fetch"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-cliprint = { path = "../cliprint", features = ["color"] }
+cliprint = { path = "../cliprint", version = "0.1.0", features = ["color"] }
 users = "0.11.0"
 zbus = "3.11.0"
 nu-ansi-term = "0.48.0"
