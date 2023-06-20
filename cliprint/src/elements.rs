@@ -1,6 +1,4 @@
 use std::collections::HashMap;
-use std::ops::{Generator, GeneratorState};
-use std::pin::Pin;
 
 use strfmt::strfmt;
 
@@ -106,34 +104,21 @@ impl CliElement {
     }
 
     #[must_use]
-    pub fn print_column<G>(mut generator: G) -> Self
-    where
-        G: Generator<Yield = CliElement, Return = ()> + std::marker::Unpin,
-    {
+    pub fn print_column(iters: impl Iterator<Item = CliElement>) -> Self {
         let mut inner = vec![];
-        while let GeneratorState::Yielded(matrix) = Pin::new(&mut generator).resume(()) {
-            inner.push(matrix)
+        for element in iters {
+            inner.push(element)
         }
 
         CliElement::Column { inner }
     }
 
     #[must_use]
-    pub fn print_row<G>(mut generator: G) -> Self
-    where
-        G: Generator<Yield = CliElement, Return = Option<RowSettings>> + std::marker::Unpin,
-    {
-        let mut inner = vec![];
-        let settings;
-        loop {
-            match Pin::new(&mut generator).resume(()) {
-                GeneratorState::Yielded(matrix) => inner.push(matrix),
-                GeneratorState::Complete(setting) => {
-                    settings = setting;
-                    break;
-                }
-            }
-        }
+    pub fn print_row(
+        iters: impl Iterator<Item = CliElement>,
+        settings: Option<RowSettings>,
+    ) -> Self {
+        let inner = iters.collect();
 
         CliElement::Row { inner, settings }
     }
@@ -269,17 +254,15 @@ impl CliElement {
 
 #[test]
 fn tst_len() {
-    let test = CliElement::print_column(|| {
-        let unit = CliElement::print_singal(&["sss"], Alignment::Left);
-        yield CliElement::print_row(move || {
-            let unita = unit.clone();
-            yield unita.clone();
-            yield unit;
-            None
-        });
-        yield CliElement::print_singal(&["sss"], Alignment::Left);
-        yield CliElement::print_singal(&["sss"], Alignment::Left)
-    });
+    let unit = CliElement::print_singal(&["sss"], Alignment::Left);
+    let test = CliElement::print_column(
+        vec![
+            CliElement::print_row(vec![unit.clone(), unit].into_iter(), None),
+            CliElement::print_singal(&["sss"], Alignment::Left),
+            CliElement::print_singal(&["sss"], Alignment::Left),
+        ]
+        .into_iter(),
+    );
     assert_eq!(test.height(), 3);
     assert_eq!(test.width(), 6);
 }

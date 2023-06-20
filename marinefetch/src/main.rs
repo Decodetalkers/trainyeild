@@ -1,4 +1,6 @@
-#![feature(generators, generator_trait)]
+//#![feature(generators, generator_trait)]
+//#![feature(iter_from_generator)]
+
 mod waylandinfos;
 use std::ffi::OsString;
 
@@ -329,7 +331,7 @@ fn wayland_screen(info: OutputInfo) -> CliElement {
     let screen_promote = Cyan.bold().paint("Screen");
     let screen_element = format!(
         "{}: {} {}",
-        screen_promote.to_string(),
+        screen_promote,
         info.name.unwrap_or("".to_string()),
         info.logical_size
             .map(|(x, y)| format!("{}x{}", x, y))
@@ -338,42 +340,75 @@ fn wayland_screen(info: OutputInfo) -> CliElement {
     CliElement::print_singal(&[&screen_element], Alignment::Left)
 }
 
+//fn os_description() -> CliElement {
+//    CliElement::print_column(std::iter::from_generator(|| {
+//        yield hostname_element();
+//        yield CliElement::print_singal(&["----------"], Alignment::Left);
+//        yield os_name_element();
+//        yield machine_element();
+//        yield kernel_element();
+//        yield uptime_element();
+//        yield shell_element();
+//        yield wm_name_element();
+//        yield terminal_element();
+//        yield xdg_session_type_element();
+//        if xdg_session_type() == "wayland" {
+//            for info in get_output_infos() {
+//                yield wayland_screen(info);
+//            }
+//        }
+//        yield cpu_element();
+//        let gpus = get_gpu_names();
+//        for gpu in gpus {
+//            yield gpu_element(&gpu);
+//        }
+//        yield memory_element();
+//    }))
+//}
+
 fn os_description() -> CliElement {
-    CliElement::print_column(|| {
-        yield hostname_element();
-        yield CliElement::print_singal(&["----------"], Alignment::Left);
-        yield os_name_element();
-        yield machine_element();
-        yield kernel_element();
-        yield uptime_element();
-        yield shell_element();
-        yield wm_name_element();
-        yield terminal_element();
-        yield xdg_session_type_element();
-        if xdg_session_type() == "wayland" {
-            for info in get_output_infos() {
-                yield wayland_screen(info);
-            }
+    let mut columns = vec![
+        hostname_element(),
+        hostname_element(),
+        CliElement::print_singal(&["----------"], Alignment::Left),
+        os_name_element(),
+        machine_element(),
+        kernel_element(),
+        uptime_element(),
+        shell_element(),
+        wm_name_element(),
+        terminal_element(),
+        xdg_session_type_element(),
+    ];
+    if xdg_session_type() == "wayland" {
+        for info in get_output_infos() {
+            columns.push(wayland_screen(info));
         }
-        yield cpu_element();
-        let gpus = get_gpu_names();
-        for gpu in gpus {
-            yield gpu_element(&gpu);
-        }
-        yield memory_element();
-    })
+    }
+    columns.push(cpu_element());
+    let gpus = get_gpu_names();
+    for gpu in gpus {
+        columns.push(gpu_element(&gpu));
+    }
+    columns.push(memory_element());
+    CliElement::print_column(columns.into_iter())
 }
 
 fn main() {
-    CliElement::print_column(|| {
-        yield CliElement::print_row(|| {
-            yield os_icon();
-            yield os_description();
-            Some(RowSettings { spacing: 1 })
-        });
-        yield color_emement();
-    })
-    .draw();
+    let rowelements = vec![os_icon(), os_description()];
+    let top = CliElement::print_row(rowelements.into_iter(), Some(RowSettings { spacing: 1 }));
+    CliElement::print_column([top, color_emement()].into_iter()).draw();
+    //CliElement::print_column(std::iter::from_generator(|| {
+    //    yield CliElement::print_row(
+    //        std::iter::from_generator(|| {
+    //            yield os_icon();
+    //            yield os_description();
+    //        }),
+    //        Some(RowSettings { spacing: 1 }),
+    //    );
+    //    yield color_emement();
+    //}))
+    //.draw();
 }
 
 #[test]
