@@ -2,6 +2,10 @@
 name = "marinefetch"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
+description = "a tool to fetch your computer"
+authors = ["Decodertalkers <aakari@tutanota.com>"]
+keywords = ["cli", "fetch"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
