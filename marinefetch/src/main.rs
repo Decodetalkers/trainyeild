@@ -369,7 +369,6 @@ fn wayland_screen(info: OutputInfo) -> CliElement {
 fn os_description() -> CliElement {
     let mut columns = vec![
         hostname_element(),
-        hostname_element(),
         CliElement::print_singal(&["----------"], Alignment::Left),
         os_name_element(),
         machine_element(),
