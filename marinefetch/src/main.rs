@@ -395,9 +395,6 @@ fn os_description() -> CliElement {
 
 #[cfg(feature = "nightly")]
 fn main() {
-    //let rowelements = vec![os_icon(), os_description()];
-    //let top = CliElement::print_row(rowelements.into_iter(), Some(RowSettings { spacing: 1 }));
-    //CliElement::print_column([top, color_emement()].into_iter()).draw();
     CliElement::print_column(|| {
         yield CliElement::print_row(|| {
             yield os_icon();
