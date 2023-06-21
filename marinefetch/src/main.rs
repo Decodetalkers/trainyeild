@@ -68,7 +68,9 @@ trait Hostname1 {
 fn get_hostname() -> String {
     let connection = get_connection().unwrap();
     let proxy = Hostname1ProxyBlocking::new(&connection).unwrap();
-    proxy.static_hostname().unwrap()
+    proxy
+        .static_hostname()
+        .unwrap_or("UnownHostName".to_string())
 }
 
 #[inline]
