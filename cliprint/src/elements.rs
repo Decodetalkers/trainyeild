@@ -1,23 +1,3 @@
-//! fn tst_len() {
-//!     #[cfg(feature = "nightly")]
-//!     use std::ops::{Generator, GeneratorState};
-//!     #[cfg(feature = "nightly")]
-//!     use std::pin::Pin;
-//!     let test = CliElement::print_column(|| {
-//!         let unit = CliElement::print_singal(&["sss"], Alignment::Left);
-//!         yield CliElement::print_row(move || {
-//!             let unita = unit.clone();
-//!             yield unita.clone();
-//!             yield unit;
-//!             None
-//!         });
-//!         yield CliElement::print_singal(&["sss"], Alignment::Left);
-//!         yield CliElement::print_singal(&["sss"], Alignment::Left)
-//!     });
-//!     assert_eq!(test.height(), 3);
-//!     assert_eq!(test.width(), 6);
-//! }
-
 use std::collections::HashMap;
 
 use strfmt::strfmt;
@@ -127,7 +107,7 @@ impl CliElement {
         CliElement::EmptyBlock
     }
 
-    #[cfg(not(feature = "nighty"))]
+    #[cfg(not(feature = "nightly"))]
     #[must_use]
     pub fn print_column(elements: impl Iterator<Item = CliElement>) -> Self {
         CliElement::Column {
@@ -135,7 +115,7 @@ impl CliElement {
         }
     }
 
-    #[cfg(not(feature = "nighty"))]
+    #[cfg(not(feature = "nightly"))]
     #[must_use]
     pub fn print_row(
         elements: impl Iterator<Item = CliElement>,
@@ -147,7 +127,7 @@ impl CliElement {
         }
     }
 
-    #[cfg(feature = "nighty")]
+    #[cfg(feature = "nightly")]
     #[must_use]
     pub fn print_column<G>(mut generator: G) -> Self
     where
@@ -161,7 +141,7 @@ impl CliElement {
         CliElement::Column { inner }
     }
 
-    #[cfg(feature = "nighty")]
+    #[cfg(feature = "nightly")]
     #[must_use]
     pub fn print_row<G>(mut generator: G) -> Self
     where
@@ -311,6 +291,7 @@ impl CliElement {
     }
 }
 
+#[cfg(not(feature = "nightly"))]
 #[test]
 fn tst_len() {
     let unit = CliElement::print_singal(&["sss"], Alignment::Left);
@@ -326,4 +307,20 @@ fn tst_len() {
     assert_eq!(test.width(), 6);
 }
 
-
+#[cfg(feature = "nightly")]
+#[test]
+fn tst_len() {
+    let test = CliElement::print_column(|| {
+        let unit = CliElement::print_singal(&["sss"], Alignment::Left);
+        yield CliElement::print_row(move || {
+            let unita = unit.clone();
+            yield unita.clone();
+            yield unit;
+            None
+        });
+        yield CliElement::print_singal(&["sss"], Alignment::Left);
+        yield CliElement::print_singal(&["sss"], Alignment::Left)
+    });
+    assert_eq!(test.height(), 3);
+    assert_eq!(test.width(), 6);
+}

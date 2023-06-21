@@ -1,6 +1,4 @@
-//#![feature(generators, generator_trait)]
-//#![feature(iter_from_generator)]
-
+#![cfg_attr(feature = "nightly", feature(generators, generator_trait))]
 mod waylandinfos;
 use std::ffi::OsString;
 
@@ -340,32 +338,34 @@ fn wayland_screen(info: OutputInfo) -> CliElement {
     CliElement::print_singal(&[&screen_element], Alignment::Left)
 }
 
-//fn os_description() -> CliElement {
-//    CliElement::print_column(std::iter::from_generator(|| {
-//        yield hostname_element();
-//        yield CliElement::print_singal(&["----------"], Alignment::Left);
-//        yield os_name_element();
-//        yield machine_element();
-//        yield kernel_element();
-//        yield uptime_element();
-//        yield shell_element();
-//        yield wm_name_element();
-//        yield terminal_element();
-//        yield xdg_session_type_element();
-//        if xdg_session_type() == "wayland" {
-//            for info in get_output_infos() {
-//                yield wayland_screen(info);
-//            }
-//        }
-//        yield cpu_element();
-//        let gpus = get_gpu_names();
-//        for gpu in gpus {
-//            yield gpu_element(&gpu);
-//        }
-//        yield memory_element();
-//    }))
-//}
+#[cfg(feature = "nightly")]
+fn os_description() -> CliElement {
+    CliElement::print_column(|| {
+        yield hostname_element();
+        yield CliElement::print_singal(&["----------"], Alignment::Left);
+        yield os_name_element();
+        yield machine_element();
+        yield kernel_element();
+        yield uptime_element();
+        yield shell_element();
+        yield wm_name_element();
+        yield terminal_element();
+        yield xdg_session_type_element();
+        if xdg_session_type() == "wayland" {
+            for info in get_output_infos() {
+                yield wayland_screen(info);
+            }
+        }
+        yield cpu_element();
+        let gpus = get_gpu_names();
+        for gpu in gpus {
+            yield gpu_element(&gpu);
+        }
+        yield memory_element();
+    })
+}
 
+#[cfg(not(feature = "nightly"))]
 fn os_description() -> CliElement {
     let mut columns = vec![
         hostname_element(),
@@ -393,21 +393,27 @@ fn os_description() -> CliElement {
     CliElement::print_column(columns.into_iter())
 }
 
+#[cfg(feature = "nightly")]
+fn main() {
+    //let rowelements = vec![os_icon(), os_description()];
+    //let top = CliElement::print_row(rowelements.into_iter(), Some(RowSettings { spacing: 1 }));
+    //CliElement::print_column([top, color_emement()].into_iter()).draw();
+    CliElement::print_column(|| {
+        yield CliElement::print_row(|| {
+            yield os_icon();
+            yield os_description();
+            Some(RowSettings { spacing: 1 })
+        });
+        yield color_emement();
+    })
+    .draw();
+}
+
+#[cfg(not(feature = "nightly"))]
 fn main() {
     let rowelements = vec![os_icon(), os_description()];
     let top = CliElement::print_row(rowelements.into_iter(), Some(RowSettings { spacing: 1 }));
     CliElement::print_column([top, color_emement()].into_iter()).draw();
-    //CliElement::print_column(std::iter::from_generator(|| {
-    //    yield CliElement::print_row(
-    //        std::iter::from_generator(|| {
-    //            yield os_icon();
-    //            yield os_description();
-    //        }),
-    //        Some(RowSettings { spacing: 1 }),
-    //    );
-    //    yield color_emement();
-    //}))
-    //.draw();
 }
 
 #[test]

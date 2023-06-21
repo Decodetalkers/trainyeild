@@ -22,4 +22,4 @@ nu-ansi-term = "0.48.0"
 
 [[example]]
 name = "simple"
-required-features = ["color"]
+required-features = ["color", "nightly"]

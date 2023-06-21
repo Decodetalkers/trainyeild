@@ -4,7 +4,8 @@ return {
             ["rust-analyzer"] = {
                 cargo = {
                     features = {
-                        "color"
+                        "color",
+                        "nightly"
                     }
                 }
             }
