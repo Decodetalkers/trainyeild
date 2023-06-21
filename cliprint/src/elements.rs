@@ -1,3 +1,23 @@
+//! fn tst_len() {
+//!     #[cfg(feature = "nightly")]
+//!     use std::ops::{Generator, GeneratorState};
+//!     #[cfg(feature = "nightly")]
+//!     use std::pin::Pin;
+//!     let test = CliElement::print_column(|| {
+//!         let unit = CliElement::print_singal(&["sss"], Alignment::Left);
+//!         yield CliElement::print_row(move || {
+//!             let unita = unit.clone();
+//!             yield unita.clone();
+//!             yield unit;
+//!             None
+//!         });
+//!         yield CliElement::print_singal(&["sss"], Alignment::Left);
+//!         yield CliElement::print_singal(&["sss"], Alignment::Left)
+//!     });
+//!     assert_eq!(test.height(), 3);
+//!     assert_eq!(test.width(), 6);
+//! }
+
 use std::collections::HashMap;
 
 use strfmt::strfmt;
@@ -6,6 +26,10 @@ use crate::layout::{Alignment, RowSettings};
 
 #[cfg(feature = "color")]
 use nu_ansi_term::Color;
+#[cfg(feature = "nightly")]
+use std::ops::{Generator, GeneratorState};
+#[cfg(feature = "nightly")]
+use std::pin::Pin;
 
 /// It is the element of cli, a unit
 /// privide Row, Column, Singal Singal
@@ -66,7 +90,7 @@ impl CliElement {
     /// ```
     /// use cliprint::elements::CliElement;
     /// use cliprint::layout::Alignment;
-    /// let archlinux = include_str!("../../assert/archlinux.txt");
+    /// let archlinux = include_str!("../assert/archlinux.txt");
     /// let a = CliElement::print_singal_from_str(archlinux, Alignment::Left);
     /// ```
     #[must_use]
@@ -103,6 +127,7 @@ impl CliElement {
         CliElement::EmptyBlock
     }
 
+    #[cfg(not(feature = "nighty"))]
     #[must_use]
     pub fn print_column(elements: impl Iterator<Item = CliElement>) -> Self {
         CliElement::Column {
@@ -110,6 +135,7 @@ impl CliElement {
         }
     }
 
+    #[cfg(not(feature = "nighty"))]
     #[must_use]
     pub fn print_row(
         elements: impl Iterator<Item = CliElement>,
@@ -119,6 +145,41 @@ impl CliElement {
             inner: elements.collect(),
             settings,
         }
+    }
+
+    #[cfg(feature = "nighty")]
+    #[must_use]
+    pub fn print_column<G>(mut generator: G) -> Self
+    where
+        G: Generator<Yield = CliElement, Return = ()> + std::marker::Unpin,
+    {
+        let mut inner = vec![];
+        while let GeneratorState::Yielded(matrix) = Pin::new(&mut generator).resume(()) {
+            inner.push(matrix)
+        }
+
+        CliElement::Column { inner }
+    }
+
+    #[cfg(feature = "nighty")]
+    #[must_use]
+    pub fn print_row<G>(mut generator: G) -> Self
+    where
+        G: Generator<Yield = CliElement, Return = Option<RowSettings>> + std::marker::Unpin,
+    {
+        let mut inner = vec![];
+        let settings;
+        loop {
+            match Pin::new(&mut generator).resume(()) {
+                GeneratorState::Yielded(matrix) => inner.push(matrix),
+                GeneratorState::Complete(setting) => {
+                    settings = setting;
+                    break;
+                }
+            }
+        }
+
+        CliElement::Row { inner, settings }
     }
 
     fn get_draw_map(&self, draw_width: usize) -> Vec<String> {
@@ -264,3 +325,5 @@ fn tst_len() {
     assert_eq!(test.height(), 3);
     assert_eq!(test.width(), 6);
 }
+
+

@@ -412,6 +412,6 @@ fn main() {
 
 #[test]
 fn tst_split_cpu() {
-    let cpus = include_str!("../../assert/example.txt");
+    let cpus = include_str!("../assert/example.txt");
     assert_eq!(cpus.split("\n\n").count(), 8);
 }
