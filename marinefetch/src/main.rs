@@ -1,6 +1,5 @@
 #![cfg_attr(feature = "nightly", feature(coroutines, coroutine_trait))]
 mod waylandinfos;
-use std::ffi::OsString;
 
 use sctk::output::OutputInfo;
 use waylandinfos::get_output_infos;
@@ -76,7 +75,7 @@ fn get_hostname() -> String {
 #[inline]
 fn get_username() -> String {
     users::get_current_username()
-        .unwrap_or(OsString::new())
+        .unwrap_or_default()
         .to_string_lossy()
         .to_string()
 }
@@ -300,7 +299,7 @@ fn get_gpu_names() -> Vec<String> {
             }
             outputs
         })
-        .unwrap_or(vec![])
+        .unwrap_or_default()
 }
 
 fn gpu_element(gpu: &str) -> CliElement {
