@@ -1,4 +1,4 @@
-#![feature(generators, generator_trait)]
+#![feature(coroutines, coroutine_trait)]
 use cliprint::elements;
 use cliprint::layout;
 use cliprint::layout::RowSettings;
