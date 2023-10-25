@@ -7,7 +7,7 @@ use crate::layout::{Alignment, RowSettings};
 #[cfg(feature = "color")]
 use nu_ansi_term::Color;
 #[cfg(feature = "nightly")]
-use std::ops::{Generator, GeneratorState};
+use std::ops::{Coroutine, CoroutineState};
 #[cfg(feature = "nightly")]
 use std::pin::Pin;
 
@@ -131,10 +131,10 @@ impl CliElement {
     #[must_use]
     pub fn print_column<G>(mut generator: G) -> Self
     where
-        G: Generator<Yield = CliElement, Return = ()> + std::marker::Unpin,
+        G: Coroutine<Yield = CliElement, Return = ()> + std::marker::Unpin,
     {
         let mut inner = vec![];
-        while let GeneratorState::Yielded(matrix) = Pin::new(&mut generator).resume(()) {
+        while let CoroutineState::Yielded(matrix) = Pin::new(&mut generator).resume(()) {
             inner.push(matrix)
         }
 
@@ -145,14 +145,14 @@ impl CliElement {
     #[must_use]
     pub fn print_row<G>(mut generator: G) -> Self
     where
-        G: Generator<Yield = CliElement, Return = Option<RowSettings>> + std::marker::Unpin,
+        G: Coroutine<Yield = CliElement, Return = Option<RowSettings>> + std::marker::Unpin,
     {
         let mut inner = vec![];
         let settings;
         loop {
             match Pin::new(&mut generator).resume(()) {
-                GeneratorState::Yielded(matrix) => inner.push(matrix),
-                GeneratorState::Complete(setting) => {
+                CoroutineState::Yielded(matrix) => inner.push(matrix),
+                CoroutineState::Complete(setting) => {
                     settings = setting;
                     break;
                 }
