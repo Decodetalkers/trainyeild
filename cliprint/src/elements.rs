@@ -310,17 +310,23 @@ fn tst_len() {
 #[cfg(feature = "nightly")]
 #[test]
 fn tst_len() {
-    let test = CliElement::print_column(|| {
-        let unit = CliElement::print_singal(&["sss"], Alignment::Left);
-        yield CliElement::print_row(move || {
-            let unita = unit.clone();
-            yield unita.clone();
-            yield unit;
-            None
-        });
-        yield CliElement::print_singal(&["sss"], Alignment::Left);
-        yield CliElement::print_singal(&["sss"], Alignment::Left)
-    });
+    let test = CliElement::print_column(
+        #[coroutine]
+        || {
+            let unit = CliElement::print_singal(&["sss"], Alignment::Left);
+            yield CliElement::print_row(
+                #[coroutine]
+                move || {
+                    let unita = unit.clone();
+                    yield unita.clone();
+                    yield unit;
+                    None
+                },
+            );
+            yield CliElement::print_singal(&["sss"], Alignment::Left);
+            yield CliElement::print_singal(&["sss"], Alignment::Left)
+        },
+    );
     assert_eq!(test.height(), 3);
     assert_eq!(test.width(), 6);
 }

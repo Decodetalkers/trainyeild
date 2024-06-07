@@ -341,29 +341,32 @@ fn wayland_screen(info: OutputInfo) -> CliElement {
 
 #[cfg(feature = "nightly")]
 fn os_description() -> CliElement {
-    CliElement::print_column(#[coroutine]|| {
-        yield hostname_element();
-        yield CliElement::print_singal(&["----------"], Alignment::Left);
-        yield os_name_element();
-        yield machine_element();
-        yield kernel_element();
-        yield uptime_element();
-        yield shell_element();
-        yield wm_name_element();
-        yield terminal_element();
-        yield xdg_session_type_element();
-        if xdg_session_type() == "wayland" {
-            for info in get_output_infos() {
-                yield wayland_screen(info);
+    CliElement::print_column(
+        #[coroutine]
+        || {
+            yield hostname_element();
+            yield CliElement::print_singal(&["----------"], Alignment::Left);
+            yield os_name_element();
+            yield machine_element();
+            yield kernel_element();
+            yield uptime_element();
+            yield shell_element();
+            yield wm_name_element();
+            yield terminal_element();
+            yield xdg_session_type_element();
+            if xdg_session_type() == "wayland" {
+                for info in get_output_infos() {
+                    yield wayland_screen(info);
+                }
             }
-        }
-        yield cpu_element();
-        let gpus = get_gpu_names();
-        for gpu in gpus {
-            yield gpu_element(&gpu);
-        }
-        yield memory_element();
-    })
+            yield cpu_element();
+            let gpus = get_gpu_names();
+            for gpu in gpus {
+                yield gpu_element(&gpu);
+            }
+            yield memory_element();
+        },
+    )
 }
 
 #[cfg(not(feature = "nightly"))]
@@ -396,14 +399,20 @@ fn os_description() -> CliElement {
 
 #[cfg(feature = "nightly")]
 fn main() {
-    CliElement::print_column(#[coroutine]|| {
-        yield CliElement::print_row(#[coroutine]|| {
-            yield os_icon();
-            yield os_description();
-            Some(RowSettings { spacing: 1 })
-        });
-        yield color_emement();
-    })
+    CliElement::print_column(
+        #[coroutine]
+        || {
+            yield CliElement::print_row(
+                #[coroutine]
+                || {
+                    yield os_icon();
+                    yield os_description();
+                    Some(RowSettings { spacing: 1 })
+                },
+            );
+            yield color_emement();
+        },
+    )
     .draw();
 }
 
