@@ -341,7 +341,7 @@ fn wayland_screen(info: OutputInfo) -> CliElement {
 
 #[cfg(feature = "nightly")]
 fn os_description() -> CliElement {
-    CliElement::print_column(|| {
+    CliElement::print_column(#[coroutine]|| {
         yield hostname_element();
         yield CliElement::print_singal(&["----------"], Alignment::Left);
         yield os_name_element();
@@ -396,8 +396,8 @@ fn os_description() -> CliElement {
 
 #[cfg(feature = "nightly")]
 fn main() {
-    CliElement::print_column(|| {
-        yield CliElement::print_row(|| {
+    CliElement::print_column(#[coroutine]|| {
+        yield CliElement::print_row(#[coroutine]|| {
             yield os_icon();
             yield os_description();
             Some(RowSettings { spacing: 1 })
