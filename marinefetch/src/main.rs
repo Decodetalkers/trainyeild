@@ -3,7 +3,7 @@ mod waylandinfos;
 
 use sctk::output::OutputInfo;
 use waylandinfos::get_output_infos;
-use zbus::{blocking::Connection, dbus_proxy, Result};
+use zbus::{blocking::Connection, proxy, Result};
 
 use cliprint::elements;
 use cliprint::layout;
@@ -45,22 +45,22 @@ fn get_connection() -> zbus::Result<Connection> {
     }
 }
 
-#[dbus_proxy(
+#[proxy(
     interface = "org.freedesktop.hostname1",
     default_service = "org.freedesktop.hostname1",
     default_path = "/org/freedesktop/hostname1"
 )]
 trait Hostname1 {
     fn describe(&self) -> Result<String>;
-    #[dbus_proxy(property)]
+    #[zbus(property)]
     fn static_hostname(&self) -> Result<String>;
-    #[dbus_proxy(property)]
+    #[zbus(property)]
     fn icon_name(&self) -> Result<String>;
-    #[dbus_proxy(property)]
+    #[zbus(property)]
     fn kernel_release(&self) -> Result<String>;
-    #[dbus_proxy(property)]
+    #[zbus(property)]
     fn hardware_vendor(&self) -> Result<String>;
-    #[dbus_proxy(property)]
+    #[zbus(property)]
     fn operating_system_pretty_name(&self) -> Result<String>;
 }
 

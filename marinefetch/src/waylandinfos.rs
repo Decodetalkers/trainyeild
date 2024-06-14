@@ -1,10 +1,12 @@
+use sctk::reexports::client::{
+    globals::registry_queue_init, protocol::wl_output, Connection, QueueHandle,
+};
 use sctk::{
     delegate_output, delegate_registry,
     output::{OutputHandler, OutputInfo, OutputState},
     registry::{ProvidesRegistryState, RegistryState},
     registry_handlers,
 };
-use wayland_client::{globals::registry_queue_init, protocol::wl_output, Connection, QueueHandle};
 
 pub fn get_output_infos() -> Vec<OutputInfo> {
     // We initialize the logger for the purpose of debugging.
