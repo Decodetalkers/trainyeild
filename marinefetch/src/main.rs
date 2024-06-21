@@ -86,12 +86,12 @@ fn hostname_element() -> CliElement {
     let hostname = Cyan.bold().paint(get_hostname());
     let os_name = format!("{}@{}", username, hostname);
 
-    CliElement::print_singal(&[&os_name], Alignment::Left)
+    CliElement::print_single(&[&os_name], Alignment::Left)
 }
 
 #[inline]
 fn os_icon() -> CliElement {
-    CliElement::print_singal_from_str_with_color(ARCHLINUX, Alignment::Left, Cyan, true)
+    CliElement::print_single_from_str_with_color(ARCHLINUX, Alignment::Left, Cyan, true)
 }
 
 #[inline]
@@ -103,7 +103,7 @@ fn wm_name() -> String {
 fn wm_name_element() -> CliElement {
     let wm_promote = Cyan.bold().paint("WM");
     let wm_element = format!("{}: {}", wm_promote, wm_name());
-    CliElement::print_singal(&[&wm_element], Alignment::Left)
+    CliElement::print_single(&[&wm_element], Alignment::Left)
 }
 
 #[inline]
@@ -115,7 +115,7 @@ fn xdg_session_type() -> String {
 fn xdg_session_type_element() -> CliElement {
     let xdg_promote = Cyan.bold().paint("SessionType");
     let xdg_element = format!("{}: {}", xdg_promote, xdg_session_type());
-    CliElement::print_singal(&[&xdg_element], Alignment::Left)
+    CliElement::print_single(&[&xdg_element], Alignment::Left)
 }
 
 fn get_uptime() -> String {
@@ -134,7 +134,7 @@ fn get_uptime() -> String {
 fn uptime_element() -> CliElement {
     let uptime_promote = Cyan.bold().paint("Uptime");
     let uptime_element = format!("{}: {}", uptime_promote, get_uptime());
-    CliElement::print_singal(&[&uptime_element], Alignment::Left)
+    CliElement::print_single(&[&uptime_element], Alignment::Left)
 }
 
 fn get_kernel() -> String {
@@ -146,7 +146,7 @@ fn get_kernel() -> String {
 fn kernel_element() -> CliElement {
     let kernel_promote = Cyan.bold().paint("Kernel");
     let kernel_element = format!("{}: {}", kernel_promote, get_kernel());
-    CliElement::print_singal(&[&kernel_element], Alignment::Left)
+    CliElement::print_single(&[&kernel_element], Alignment::Left)
 }
 
 fn get_os_name() -> String {
@@ -162,7 +162,7 @@ fn get_os_name() -> String {
 fn os_name_element() -> CliElement {
     let os_name_promote = Cyan.bold().paint("OS");
     let os_name_element = format!("{}: {}", os_name_promote, get_os_name());
-    CliElement::print_singal(&[&os_name_element], Alignment::Left)
+    CliElement::print_single(&[&os_name_element], Alignment::Left)
 }
 
 fn get_memory() -> String {
@@ -197,7 +197,7 @@ fn get_memory() -> String {
 fn memory_element() -> CliElement {
     let memory_promote = Cyan.bold().paint("Memory");
     let memory_element = format!("{}: {}", memory_promote, get_memory());
-    CliElement::print_singal(&[&memory_element], Alignment::Left)
+    CliElement::print_single(&[&memory_element], Alignment::Left)
 }
 
 fn get_shell() -> String {
@@ -209,7 +209,7 @@ fn get_shell() -> String {
 fn shell_element() -> CliElement {
     let shell_promote = Cyan.bold().paint("Shell");
     let shell_element = format!("{}: {}", shell_promote, get_shell());
-    CliElement::print_singal(&[&shell_element], Alignment::Left)
+    CliElement::print_single(&[&shell_element], Alignment::Left)
 }
 
 fn get_terminal() -> String {
@@ -217,7 +217,7 @@ fn get_terminal() -> String {
         std::process::Command::new("tty")
             .output()
             .map(|output| String::from_utf8_lossy(output.stdout.as_ref()).to_string())
-            .unwrap_or("Unkown".to_string())
+            .unwrap_or("Unknown".to_string())
             .trim()
             .to_string()
     })
@@ -226,7 +226,7 @@ fn get_terminal() -> String {
 fn terminal_element() -> CliElement {
     let terminal_promote = Cyan.bold().paint("Terminal");
     let terminal_element = format!("{}: {}", terminal_promote, get_terminal());
-    CliElement::print_singal(&[&terminal_element], Alignment::Left)
+    CliElement::print_single(&[&terminal_element], Alignment::Left)
 }
 
 fn get_machine_name() -> String {
@@ -244,7 +244,7 @@ fn get_machine_name() -> String {
 fn machine_element() -> CliElement {
     let machine_promote = Cyan.bold().paint("Host");
     let machine_element = format!("{}: {}", machine_promote, get_machine_name());
-    CliElement::print_singal(&[&machine_element], Alignment::Left)
+    CliElement::print_single(&[&machine_element], Alignment::Left)
 }
 
 fn get_cpu_name() -> String {
@@ -269,7 +269,7 @@ fn get_cpu_name() -> String {
 fn cpu_element() -> CliElement {
     let cpu_promote = Cyan.bold().paint("CPU");
     let cpu_element = format!("{}: {}", cpu_promote, get_cpu_name());
-    CliElement::print_singal(&[&cpu_element], Alignment::Left)
+    CliElement::print_single(&[&cpu_element], Alignment::Left)
 }
 
 fn get_gpu_names() -> Vec<String> {
@@ -305,7 +305,7 @@ fn get_gpu_names() -> Vec<String> {
 fn gpu_element(gpu: &str) -> CliElement {
     let gpu_promote = Cyan.bold().paint("GPU");
     let gpu_element = format!("{}: {}", gpu_promote, gpu);
-    CliElement::print_singal(&[&gpu_element], Alignment::Left)
+    CliElement::print_single(&[&gpu_element], Alignment::Left)
 }
 
 fn color_block(start: usize, end: usize, step: usize) -> String {
@@ -323,7 +323,7 @@ fn color_block(start: usize, end: usize, step: usize) -> String {
 }
 
 fn color_emement() -> CliElement {
-    CliElement::print_singal(&[&color_block(0, 255, 9)], Alignment::Left)
+    CliElement::print_single(&[&color_block(0, 255, 9)], Alignment::Left)
 }
 
 fn wayland_screen(info: OutputInfo) -> CliElement {
@@ -336,7 +336,7 @@ fn wayland_screen(info: OutputInfo) -> CliElement {
             .map(|(x, y)| format!("{}x{}", x, y))
             .unwrap_or("Default".to_string())
     );
-    CliElement::print_singal(&[&screen_element], Alignment::Left)
+    CliElement::print_single(&[&screen_element], Alignment::Left)
 }
 
 #[cfg(feature = "nightly")]
@@ -345,7 +345,7 @@ fn os_description() -> CliElement {
         #[coroutine]
         || {
             yield hostname_element();
-            yield CliElement::print_singal(&["----------"], Alignment::Left);
+            yield CliElement::print_single(&["----------"], Alignment::Left);
             yield os_name_element();
             yield machine_element();
             yield kernel_element();
@@ -373,7 +373,7 @@ fn os_description() -> CliElement {
 fn os_description() -> CliElement {
     let mut columns = vec![
         hostname_element(),
-        CliElement::print_singal(&["----------"], Alignment::Left),
+        CliElement::print_single(&["----------"], Alignment::Left),
         os_name_element(),
         machine_element(),
         kernel_element(),

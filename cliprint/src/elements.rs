@@ -12,7 +12,7 @@ use std::ops::{Coroutine, CoroutineState};
 use std::pin::Pin;
 
 /// It is the element of cli, a unit
-/// privide Row, Column, Singal Singal
+/// provide Row, Column, Single
 /// ```
 /// use cliprint::elements::CliElement;
 /// let a = CliElement::EmptyBlock;
@@ -27,16 +27,16 @@ pub enum CliElement {
     Column {
         inner: Vec<CliElement>,
     },
-    Singal {
+    Single {
         inner: Vec<String>,
         layout: Alignment,
     },
     EmptyBlock,
 }
 
-fn init_matrix(heigth: usize) -> Vec<String> {
+fn init_matrix(height: usize) -> Vec<String> {
     let mut output = vec![];
-    for _ in 0..heigth {
+    for _ in 0..height {
         output.push(String::new());
     }
     output
@@ -51,38 +51,38 @@ fn init_string_with_width(width: usize) -> String {
 }
 
 impl CliElement {
-    /// use a matrix to init a CliElement::Singal
+    /// use a matrix to init a CliElement::Single
     /// ```
     /// use cliprint::elements::CliElement;
     /// use cliprint::layout::Alignment;
-    /// let a = CliElement::print_singal(&["sss","bbb"], Alignment::Left);
+    /// let a = CliElement::print_single(&["sss","bbb"], Alignment::Left);
     /// ```
     #[must_use]
-    pub fn print_singal(matrix: &[&str], layout: Alignment) -> Self {
+    pub fn print_single(matrix: &[&str], layout: Alignment) -> Self {
         let mut inner = vec![];
         for mat in matrix {
             inner.push(mat.to_string());
         }
-        CliElement::Singal { inner, layout }
+        CliElement::Single { inner, layout }
     }
 
-    /// same as print_singal, but with string
+    /// same as print_single, but with string
     /// ```
     /// use cliprint::elements::CliElement;
     /// use cliprint::layout::Alignment;
     /// let archlinux = include_str!("../assert/archlinux.txt");
-    /// let a = CliElement::print_singal_from_str(archlinux, Alignment::Left);
+    /// let a = CliElement::print_single_from_str(archlinux, Alignment::Left);
     /// ```
     #[must_use]
-    pub fn print_singal_from_str(matrix: &str, layout: Alignment) -> Self {
+    pub fn print_single_from_str(matrix: &str, layout: Alignment) -> Self {
         let matrix: Vec<&str> = matrix.lines().collect();
-        Self::print_singal(&matrix, layout)
+        Self::print_single(&matrix, layout)
     }
 
-    /// same as print_singal_from_str, but privde color, use nu_ansi_term
+    /// same as print_single_from_str, but provide color, use nu_ansi_term
     #[cfg(feature = "color")]
     #[must_use]
-    pub fn print_singal_from_str_with_color(
+    pub fn print_single_from_str_with_color(
         matrix: &str,
         layout: Alignment,
         color: Color,
@@ -99,7 +99,7 @@ impl CliElement {
             })
             .collect();
         let matrix: Vec<&str> = matrix.iter().map(|s| s.as_str()).collect();
-        Self::print_singal(&matrix, layout)
+        Self::print_single(&matrix, layout)
     }
 
     #[must_use]
@@ -173,7 +173,7 @@ impl CliElement {
                 .unwrap();
                 vec![format_res]
             }
-            CliElement::Singal { inner, layout } => {
+            CliElement::Single { inner, layout } => {
                 let formatalign = match layout {
                     Alignment::Left => format!("{{content: <{}}}", draw_width),
                     Alignment::Right => format!("{{content: >{}}}", draw_width),
@@ -255,7 +255,7 @@ impl CliElement {
                 }
                 len
             }
-            CliElement::Singal { inner, .. } => {
+            CliElement::Single { inner, .. } => {
                 let mut len = 0;
                 for inn in inner {
                     if inn.len() > len {
@@ -286,7 +286,7 @@ impl CliElement {
                 }
                 len
             }
-            CliElement::Singal { inner, .. } => inner.len(),
+            CliElement::Single { inner, .. } => inner.len(),
         }
     }
 }
@@ -294,12 +294,12 @@ impl CliElement {
 #[cfg(not(feature = "nightly"))]
 #[test]
 fn tst_len() {
-    let unit = CliElement::print_singal(&["sss"], Alignment::Left);
+    let unit = CliElement::print_single(&["sss"], Alignment::Left);
     let test = CliElement::print_column(
         vec![
             CliElement::print_row(vec![unit.clone(), unit].into_iter(), None),
-            CliElement::print_singal(&["sss"], Alignment::Left),
-            CliElement::print_singal(&["sss"], Alignment::Left),
+            CliElement::print_single(&["sss"], Alignment::Left),
+            CliElement::print_single(&["sss"], Alignment::Left),
         ]
         .into_iter(),
     );
@@ -313,7 +313,7 @@ fn tst_len() {
     let test = CliElement::print_column(
         #[coroutine]
         || {
-            let unit = CliElement::print_singal(&["sss"], Alignment::Left);
+            let unit = CliElement::print_single(&["sss"], Alignment::Left);
             yield CliElement::print_row(
                 #[coroutine]
                 move || {
@@ -323,8 +323,8 @@ fn tst_len() {
                     None
                 },
             );
-            yield CliElement::print_singal(&["sss"], Alignment::Left);
-            yield CliElement::print_singal(&["sss"], Alignment::Left)
+            yield CliElement::print_single(&["sss"], Alignment::Left);
+            yield CliElement::print_single(&["sss"], Alignment::Left)
         },
     );
     assert_eq!(test.height(), 3);

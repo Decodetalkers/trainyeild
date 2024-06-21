@@ -1,7 +1,9 @@
+cargo-features = ["edition2024"]
+
 [package]
 name = "marinefetch"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 license = "MIT"
 description = "a tool to fetch your computer"
 authors = ["Decodertalkers <aakari@tutanota.com>"]
@@ -10,7 +12,10 @@ keywords = ["cli", "fetch"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-cliprint = { path = "../cliprint", version = "0.1.0", features = ["color", "nightly"] }
+cliprint = { path = "../cliprint", version = "0.1.0", features = [
+	"color",
+	"nightly",
+] }
 users = "0.11.0"
 zbus = "4.2.2"
 nu-ansi-term = "0.50.0"

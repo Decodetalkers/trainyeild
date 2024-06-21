@@ -1,7 +1,9 @@
+cargo-features = ["edition2024"]
+
 [package]
 name = "cliprint"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 license = "MIT"
 description = "a crate to generate the cli output"
 authors = ["Decodertalkers <aakari@tutanota.com>"]
@@ -14,7 +16,7 @@ strfmt = "0.2.4"
 nu-ansi-term = { version = "0.50.0", optional = true }
 
 [features]
-color = ["nu-ansi-term"]
+color = ["dep:nu-ansi-term"]
 nightly = []
 
 [dev-dependencies]
