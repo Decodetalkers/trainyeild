@@ -1,5 +1,5 @@
 use sctk::reexports::client::{
-    globals::registry_queue_init, protocol::wl_output, Connection, QueueHandle,
+    Connection, QueueHandle, globals::registry_queue_init, protocol::wl_output,
 };
 use sctk::{
     delegate_output, delegate_registry,

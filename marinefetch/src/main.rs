@@ -1,9 +1,9 @@
-#![cfg_attr(feature = "nightly", feature(coroutines, coroutine_trait))]
+#![cfg_attr(feature = "nightly", feature(gen_blocks, coroutines, coroutine_trait))]
 mod waylandinfos;
 
 use sctk::output::OutputInfo;
 use waylandinfos::get_output_infos;
-use zbus::{blocking::Connection, proxy, Result};
+use zbus::{Result, blocking::Connection, proxy};
 
 use cliprint::elements;
 use cliprint::layout;
