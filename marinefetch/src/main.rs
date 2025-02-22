@@ -202,7 +202,13 @@ fn memory_element() -> CliElement {
 
 fn get_shell() -> String {
     std::env::var("SHELL")
-        .map(|shell| shell.split('/').last().unwrap_or("Unknown").to_string())
+        .map(|shell| {
+            shell
+                .split('/')
+                .next_back()
+                .unwrap_or("Unknown")
+                .to_string()
+        })
         .unwrap_or("Unknown".to_string())
 }
 
@@ -258,7 +264,7 @@ fn get_cpu_name() -> String {
     let mut cpuname = String::new();
     for info in onecpu.lines() {
         if info.starts_with("model name") {
-            cpuname = info.split(':').last().unwrap_or("").to_string();
+            cpuname = info.split(':').next_back().unwrap_or("").to_string();
             break;
         }
     }
